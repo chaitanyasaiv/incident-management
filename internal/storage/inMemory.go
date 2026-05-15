@@ -1,0 +1,69 @@
+package storage
+
+import (
+	"context"
+	"errors"
+	"sync"
+
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
+)
+
+var (
+	ErrNotFound = errors.New("incident record not found")
+)
+
+type InMemoryStore struct {
+	mu        sync.RWMutex
+	incidents map[string]models.IncidentData
+}
+
+func NewInMemoryStore() *InMemoryStore {
+	return &InMemoryStore{
+		incidents: make(map[string]models.IncidentData),
+	}
+}
+
+func (i *InMemoryStore) Get(ctx context.Context, id string) (models.IncidentData, error) {
+	i.mu.RLock()
+	defer i.mu.RUnlock()
+
+	incident, ok := i.incidents[id]
+	if !ok {
+		return models.IncidentData{}, ErrNotFound
+	}
+	return incident, nil
+}
+
+func (i *InMemoryStore) GetAll(ctx context.Context) ([]models.IncidentData, error) {
+
+	i.mu.RLock()
+	defer i.mu.RUnlock()
+	incidents := make([]models.IncidentData, 0, len(i.incidents))
+
+	for _, val := range i.incidents {
+		incidents = append(incidents, val)
+	}
+
+	return incidents, nil
+}
+
+func (i *InMemoryStore) Save(ctx context.Context, incident *models.IncidentData) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	id := incident.Id
+	i.incidents[id] = *incident
+
+	return nil
+}
+
+func (i *InMemoryStore) Delete(ctx context.Context, id string) error {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	_, ok := i.incidents[id]
+	if !ok {
+		return ErrNotFound
+	}
+	delete(i.incidents, id)
+	return nil
+}
