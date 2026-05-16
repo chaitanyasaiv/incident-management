@@ -80,6 +80,13 @@ func (i *IncidentHandler) SaveIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
+	err = reqBody.Validate()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	incident := models.IncidentData{
 		Id:        reqBody.Id,
 		Severity:  reqBody.Severity,
