@@ -14,6 +14,7 @@ import (
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/handlers"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/router"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/service"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
@@ -42,7 +43,9 @@ func main() {
 
 	logging := storage.NewLoggingIncidentStore(caching)
 
-	handler := handlers.NewHandler(logging)
+	incidentService := service.NewIncidentService(logging)
+
+	handler := handlers.NewHandler(incidentService)
 
 	server := router.Routes(":8080", handler)
 

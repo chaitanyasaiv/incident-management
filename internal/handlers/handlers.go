@@ -8,9 +8,8 @@ import (
 	"time"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/service"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
-
-	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
 
 var healthCheck atomic.Bool
@@ -40,10 +39,10 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 type IncidentHandler struct {
-	incidents store.IncidentStore
+	incidents service.IncidentServices
 }
 
-func NewHandler(s store.IncidentStore) *IncidentHandler {
+func NewHandler(s service.IncidentServices) *IncidentHandler {
 	return &IncidentHandler{
 		incidents: s,
 	}
@@ -51,7 +50,7 @@ func NewHandler(s store.IncidentStore) *IncidentHandler {
 
 func (i *IncidentHandler) GetIncident(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	incident, err := i.incidents.Get(r.Context(), id)
+	incident, err := i.incidents.GetIncident(r.Context(), id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -88,7 +87,7 @@ func (i *IncidentHandler) SaveIncident(w http.ResponseWriter, r *http.Request) {
 		TimeStamp: time.Now(),
 	}
 
-	err = i.incidents.Save(r.Context(), &incident)
+	err = i.incidents.CreateIncident(r.Context(), &incident)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -100,7 +99,7 @@ func (i *IncidentHandler) SaveIncident(w http.ResponseWriter, r *http.Request) {
 }
 
 func (i *IncidentHandler) GetAllIncidents(w http.ResponseWriter, r *http.Request) {
-	allIncidents, err := i.incidents.GetAll(r.Context())
+	allIncidents, err := i.incidents.ListIncidents(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -115,7 +114,7 @@ func (i *IncidentHandler) GetAllIncidents(w http.ResponseWriter, r *http.Request
 func (i *IncidentHandler) DeleteIncident(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	err := i.incidents.Delete(r.Context(), id)
+	err := i.incidents.DeleteIncident(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, storage.ErrNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
