@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -15,12 +16,14 @@ import (
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
 )
 
+var healthCheck atomic.Bool
+
 func main() {
 
 	store := storage.NewInMemoryStore()
 	handler := handlers.NewHandler(store)
 
-	server := router.Routes("8080", handler)
+	server := router.Routes(":8080", handler)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -32,6 +35,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM) // This sends the message to the quit channel
 	<-quit
 	log.Println("Shutdown Signal Received")
+	healthCheck.Store(false)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
