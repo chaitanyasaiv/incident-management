@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +21,22 @@ var healthCheck atomic.Bool
 
 func main() {
 
-	store := storage.NewInMemoryStore()
+	storageName := flag.String("storage", "inMemory", "flag to decide which storage to use during compile time")
+	flag.Parse()
+	var store handlers.IncidentStore
+	switch *storageName {
+	case "inMemory":
+		store = storage.NewInMemoryStore()
+	case "file":
+		fileStore, err := storage.NewFileStorage("localFile.json")
+		if err != nil {
+			log.Fatal("Error creating new file storage")
+		}
+		store = fileStore
+	default:
+		log.Fatalf("unknown store type: %s", *storageName)
+	}
+
 	handler := handlers.NewHandler(store)
 
 	server := router.Routes(":8080", handler)
