@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/handlers"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/middleware"
 )
 
 func Routes(path string, i *handlers.IncidentHandler) *http.Server {
@@ -18,7 +19,7 @@ func Routes(path string, i *handlers.IncidentHandler) *http.Server {
 
 	return &http.Server{
 		Addr:         path,
-		Handler:      r,
+		Handler:      middleware.Logging(r),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
