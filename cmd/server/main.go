@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/handlers"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/logging"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/router"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
 )
@@ -37,7 +38,9 @@ func main() {
 		log.Fatalf("unknown store type: %s", *storageName)
 	}
 
-	handler := handlers.NewHandler(store)
+	logging := logging.NewLoggingIncidentStore(store)
+
+	handler := handlers.NewHandler(logging)
 
 	server := router.Routes(":8080", handler)
 
