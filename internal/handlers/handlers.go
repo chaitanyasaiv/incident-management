@@ -39,8 +39,16 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 type IncidentStore interface {
+	IncidentReader
+	IncidentWriter
+}
+
+type IncidentReader interface {
 	Get(ctx context.Context, id string) (models.IncidentData, error)
 	GetAll(ctx context.Context) ([]models.IncidentData, error)
+}
+
+type IncidentWriter interface {
 	Save(ctx context.Context, incident *models.IncidentData) error
 	Delete(ctx context.Context, id string) error
 }
