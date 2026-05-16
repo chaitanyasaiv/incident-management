@@ -11,6 +11,15 @@ import (
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
 )
 
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	responseData := models.HealthCheck{
+		Status:    "OK",
+		TimeStamp: time.Now().UTC(),
+	}
+
+	json.NewEncoder(w).Encode(responseData)
+}
+
 type IncidentStore interface {
 	Get(ctx context.Context, id string) (models.IncidentData, error)
 	GetAll(ctx context.Context) ([]models.IncidentData, error)

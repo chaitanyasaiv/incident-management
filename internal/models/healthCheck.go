@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type HealthCheck struct {
 	Status    string `json:"status"`
