@@ -5,13 +5,31 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
 )
 
+var healthCheck atomic.Bool
+
+func init() {
+	healthCheck.Store(true)
+}
+
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
+
+	if !healthCheck.Load() {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		responseData := models.HealthCheck{
+			Status:    "Server Shutting Down",
+			TimeStamp: time.Now().UTC(),
+		}
+		json.NewEncoder(w).Encode(responseData)
+		return
+	}
+
 	responseData := models.HealthCheck{
 		Status:    "OK",
 		TimeStamp: time.Now().UTC(),
