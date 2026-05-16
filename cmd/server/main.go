@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/handlers"
-	"github.com/ChaitanyaSaiV/Incident-Management/internal/logging"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/router"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
 
 var healthCheck atomic.Bool
@@ -24,7 +24,7 @@ func main() {
 
 	storageName := flag.String("storage", "inMemory", "flag to decide which storage to use during compile time")
 	flag.Parse()
-	var store handlers.IncidentStore
+	var store store.IncidentStore
 	switch *storageName {
 	case "inMemory":
 		store = storage.NewInMemoryStore()
@@ -38,7 +38,9 @@ func main() {
 		log.Fatalf("unknown store type: %s", *storageName)
 	}
 
-	logging := logging.NewLoggingIncidentStore(store)
+	caching := storage.NewCacheStore(store, 60*time.Second)
+
+	logging := storage.NewLoggingIncidentStore(caching)
 
 	handler := handlers.NewHandler(logging)
 
