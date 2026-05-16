@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
-	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/service"
 )
 
 type MockStore struct {
@@ -32,30 +32,30 @@ type MockStore struct {
 	DeleteCalled int
 }
 
-func (m *MockStore) Get(ctx context.Context, id string) (models.IncidentData, error) {
+func (m *MockStore) GetIncident(ctx context.Context, id string) (models.IncidentData, error) {
 	m.GetCalled++
 	m.GetCalledID = id
 	return m.GetData, m.GetErr
 }
 
-func (m *MockStore) GetAll(ctx context.Context) ([]models.IncidentData, error) {
+func (m *MockStore) ListIncidents(ctx context.Context) ([]models.IncidentData, error) {
 	m.GetAllCalled++
 	return m.GetAllData, m.GetAllErr
 }
 
-func (m *MockStore) Save(ctx context.Context, incident *models.IncidentData) error {
+func (m *MockStore) CreateIncident(ctx context.Context, incident *models.IncidentData) error {
 	m.SaveCalled++
 	m.SavedIncident = incident
 	return m.SaveErr
 }
 
-func (m *MockStore) Delete(ctx context.Context, id string) error {
+func (m *MockStore) DeleteIncident(ctx context.Context, id string) error {
 	m.DeleteCalled++
 	m.DeletedID = id
 	return m.DeleteErr
 }
 
-var _ store.IncidentStore = (*MockStore)(nil)
+var _ service.IncidentServices = (*MockStore)(nil)
 
 func TestSaveIncident(t *testing.T) {
 	incidents := []struct {
