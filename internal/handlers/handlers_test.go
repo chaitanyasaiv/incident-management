@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
 
 type MockStore struct {
@@ -54,7 +55,7 @@ func (m *MockStore) Delete(ctx context.Context, id string) error {
 	return m.DeleteErr
 }
 
-var _ IncidentStore = (*MockStore)(nil)
+var _ store.IncidentStore = (*MockStore)(nil)
 
 func TestSaveIncident(t *testing.T) {
 	incidents := []struct {

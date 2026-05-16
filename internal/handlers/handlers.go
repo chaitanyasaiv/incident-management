@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -10,6 +9,8 @@ import (
 
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/storage"
+
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
 
 var healthCheck atomic.Bool
@@ -38,26 +39,11 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(responseData)
 }
 
-type IncidentStore interface {
-	IncidentReader
-	IncidentWriter
-}
-
-type IncidentReader interface {
-	Get(ctx context.Context, id string) (models.IncidentData, error)
-	GetAll(ctx context.Context) ([]models.IncidentData, error)
-}
-
-type IncidentWriter interface {
-	Save(ctx context.Context, incident *models.IncidentData) error
-	Delete(ctx context.Context, id string) error
-}
-
 type IncidentHandler struct {
-	incidents IncidentStore
+	incidents store.IncidentStore
 }
 
-func NewHandler(s IncidentStore) *IncidentHandler {
+func NewHandler(s store.IncidentStore) *IncidentHandler {
 	return &IncidentHandler{
 		incidents: s,
 	}

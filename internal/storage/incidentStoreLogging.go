@@ -1,19 +1,19 @@
-package logging
+package storage
 
 import (
 	"context"
 	"log"
 	"time"
 
-	"github.com/ChaitanyaSaiV/Incident-Management/internal/handlers"
 	"github.com/ChaitanyaSaiV/Incident-Management/internal/models"
+	"github.com/ChaitanyaSaiV/Incident-Management/internal/store"
 )
 
 type LoggingIncidentStore struct {
-	next handlers.IncidentStore
+	next store.IncidentStore
 }
 
-func NewLoggingIncidentStore(store handlers.IncidentStore) *LoggingIncidentStore {
+func NewLoggingIncidentStore(store store.IncidentStore) *LoggingIncidentStore {
 	return &LoggingIncidentStore{
 		next: store,
 	}
