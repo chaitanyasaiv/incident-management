@@ -19,7 +19,7 @@ func Routes(path string, i *handlers.IncidentHandler) *http.Server {
 
 	return &http.Server{
 		Addr:         path,
-		Handler:      middleware.Logging(r),
+		Handler:      middleware.Logging(middleware.Recovery(r)),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
